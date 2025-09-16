@@ -16,12 +16,25 @@ type Player = {
   mpg: number;
 };
 
+type PlayerPerMinute = {
+  name: string;
+  position: string;
+  ppm: number;
+  apm: number;
+  rpm: number;
+  tpm: number;
+  fpm: number;
+};
+
 export default function DashboardClient() {
   const { user, isLoading } = useUser();
   const router = useRouter();
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [playersPerMinute, setPlayersPerMinute] = useState<PlayerPerMinute[]>([]);
+  const [loadingPerMinute, setLoadingPerMinute] = useState(true);
+  const [errorPerMinute, setErrorPerMinute] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -29,6 +42,7 @@ export default function DashboardClient() {
     }
   }, [isLoading, user, router]);
 
+  // Fetch supabase data via the protected player Nextjs API route
   useEffect(() => {
     if (user) {
       fetch('/api/test-supabase')
@@ -44,7 +58,24 @@ export default function DashboardClient() {
     }
   }, [user]);
 
+  // Fetch supabase data via the protected player-per-minute Nextjs API route
+  useEffect(() => {
+    fetch('/api/player-per-minute')
+      .then((res) => res.json())
+      .then((data) => {
+        setPlayersPerMinute(data);
+        setLoadingPerMinute(false);
+      })
+      .catch((err) => {
+        setErrorPerMinute('Failed to load per-minute player data');
+        setLoadingPerMinute(false);
+      });
+  }, []);
+
   const filteredPlayers = players.filter((p) => p.name && p.name.toLowerCase() !== 'total');
+  const filteredPlayersPerMinute = playersPerMinute.filter(
+    (p) => p.name && p.name.toLowerCase() !== 'total'
+  );
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -61,11 +92,8 @@ export default function DashboardClient() {
       {!loading && !error && (
         <>
           <div className="mb-8">
-            <h3 className="mb-2 text-xl font-semibold">Players Table</h3>
-            <div
-              className="overflow-x-auto border border-gray-200 rounded-lg"
-              style={{ maxHeight: 400, overflowY: 'auto' }}
-            >
+            <h3 className="mb-2 text-xl font-semibold">Players Stats</h3>
+            <div className="overflow-x-auto overflow-y-auto max-h-[400px] border border-gray-200 rounded-lg">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="sticky top-0 z-10 bg-gray-50">
                   <tr>
@@ -126,6 +154,57 @@ export default function DashboardClient() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+          <div className="mb-8">
+            <h3 className="mb-2 text-xl font-semibold">Players Stats</h3>
+            <div className="overflow-x-auto overflow-y-auto max-h-[400px] border border-gray-200 rounded-lg">
+              {loadingPerMinute ? (
+                <p>Loading...</p>
+              ) : errorPerMinute ? (
+                <p className="text-red-500">{errorPerMinute}</p>
+              ) : (
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="sticky top-0 z-10 bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                        Name
+                      </th>
+                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                        Position
+                      </th>
+                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                        Points
+                      </th>
+                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                        Assists
+                      </th>
+                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                        Rebounds
+                      </th>
+                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                        Turnovers
+                      </th>
+                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                        Fouls
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredPlayersPerMinute.map((player) => (
+                      <tr key={player.name}>
+                        <td className="px-4 py-2 whitespace-nowrap">{player.name}</td>
+                        <td className="px-4 py-2 whitespace-nowrap">{player.position}</td>
+                        <td className="px-4 py-2 whitespace-nowrap">{player.ppm}</td>
+                        <td className="px-4 py-2 whitespace-nowrap">{player.apm}</td>
+                        <td className="px-4 py-2 whitespace-nowrap">{player.rpm}</td>
+                        <td className="px-4 py-2 whitespace-nowrap">{player.tpm}</td>
+                        <td className="px-4 py-2 whitespace-nowrap">{player.fpm}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
 

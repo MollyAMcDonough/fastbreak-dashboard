@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { auth0 } from '../../lib/auth0';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Check authentication
   const session = await auth0.getSession(req);
   if (!session || !session.user) {
     return res.status(401).json({ error: 'Unauthorized' });

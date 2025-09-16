@@ -1,6 +1,8 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+"use client";
+import { useEffect, useState } from "react";
+import { useUser } from "@auth0/nextjs-auth0";
+import { useRouter } from "next/navigation";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 type Player = {
   id: string;
@@ -14,24 +16,38 @@ type Player = {
 };
 
 export default function DashboardClient() {
+  const { user, isLoading } = useUser();
+  const router = useRouter();
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/test-supabase')
-      .then((res) => res.json())
-      .then((data) => {
-        setPlayers(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError('Failed to load player data');
-        setLoading(false);
-      });
-  }, []);
+    if (!isLoading && !user) {
+      router.push("/auth/login?returnTo=/dashboard");
+    }
+  }, [isLoading, user, router]);
 
-  const filteredPlayers = players.filter((p) => p.name && p.name.toLowerCase() !== 'total');
+  useEffect(() => {
+    if (user) {
+      fetch("/api/test-supabase")
+        .then((res) => res.json())
+        .then((data) => {
+          setPlayers(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError("Failed to load player data");
+          setLoading(false);
+        });
+    }
+  }, [user]);
+
+  const filteredPlayers = players.filter((p) => p.name && p.name.toLowerCase() !== "total");
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div className="max-w-4xl p-6 mx-auto">
@@ -49,39 +65,25 @@ export default function DashboardClient() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                      Name
-                    </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                      Position
-                    </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                      Points
-                    </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                      Assists
-                    </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                      Rebounds
-                    </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                      Field Goal %
-                    </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                      Minutes Per Game
-                    </th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">Name</th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">Position</th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">Points</th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">Assists</th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">Rebounds</th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">Field Goal %</th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">Minutes Per Game</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredPlayers.map((player) => (
                     <tr key={player.id}>
-                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.name ?? 'N/A'}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.position ?? 'N/A'}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.pts ?? 0}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.ast ?? 0}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.reb ?? 0}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.fg_pct ?? 'N/A'}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.mpg ?? 'N/A'}</td>
+                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">{player.name ?? "N/A"}</td>
+                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">{player.position ?? "N/A"}</td>
+                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">{player.pts ?? 0}</td>
+                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">{player.ast ?? 0}</td>
+                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">{player.reb ?? 0}</td>
+                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">{player.fg_pct ?? "N/A"}</td>
+                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">{player.mpg ?? "N/A"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -115,3 +117,4 @@ export default function DashboardClient() {
     </div>
   );
 }
+

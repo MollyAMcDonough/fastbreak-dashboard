@@ -1,10 +1,117 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+
+type Player = {
+  id: string;
+  name: string;
+  position: string;
+  pts: number;
+  ast: number;
+  reb: number;
+  fg_pct: number;
+  mpg: number;
+};
 
 export default function DashboardClient() {
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/test-supabase')
+      .then((res) => res.json())
+      .then((data) => {
+        setPlayers(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError('Failed to load player data');
+        setLoading(false);
+      });
+  }, []);
+
+  const filteredPlayers = players.filter((p) => p.name && p.name.toLowerCase() !== 'total');
+
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-      <p>Welcome to the dashboard!</p>
-      <p>This is a protected dashboard route. Only authenticated users can see this.</p>
+    <div className="max-w-4xl p-6 mx-auto">
+      <h2 className="mb-4 text-2xl font-bold">Dashboard</h2>
+      <p className="mb-6">Welcome to the dashboard! Only authenticated users can see this.</p>
+
+      {loading && <p>Loading player data...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+
+      {!loading && !error && (
+        <>
+          <div className="mb-8">
+            <h3 className="mb-2 text-xl font-semibold">Players Table</h3>
+            <div className="overflow-x-auto border border-gray-200 rounded-lg">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                      Name
+                    </th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                      Position
+                    </th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                      Points
+                    </th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                      Assists
+                    </th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                      Rebounds
+                    </th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                      Field Goal %
+                    </th>
+                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                      Minutes Per Game
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredPlayers.map((player) => (
+                    <tr key={player.id}>
+                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.name ?? 'N/A'}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.position ?? 'N/A'}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.pts ?? 0}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.ast ?? 0}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.reb ?? 0}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.fg_pct ?? 'N/A'}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-gray-900">{player.mpg ?? 'N/A'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="mb-2 text-xl font-semibold">Points by Player (Bar Chart)</h3>
+            <div className="p-4 bg-white border border-gray-200 rounded-lg">
+              {filteredPlayers.length === 0 ? (
+                <p className="text-gray-500">No player data available for chart.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={filteredPlayers.length * 40}>
+                  <BarChart
+                    data={filteredPlayers}
+                    layout="vertical"
+                    margin={{ top: 20, right: 30, left: 120, bottom: 5 }}
+                  >
+                    <XAxis type="number" />
+                    <YAxis dataKey="name" type="category" />
+                    <Tooltip />
+                    <Bar dataKey="pts" fill="#3b82f6" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

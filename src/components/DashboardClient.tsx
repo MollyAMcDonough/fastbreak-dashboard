@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@auth0/nextjs-auth0';
 import { useRouter } from 'next/navigation';
 import { BarChart, Bar, Legend, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import StatsTable from './StatsTable';
 
+// Define the Player type based on the supabase data structure
 type Player = {
   id: string;
   name: string;
@@ -16,6 +18,7 @@ type Player = {
   mpg: number;
 };
 
+// Define the PlayerPerMinute type for API transformed stats
 type PlayerPerMinute = {
   name: string;
   position: string;
@@ -25,6 +28,30 @@ type PlayerPerMinute = {
   tpm: number;
   fpm: number;
 };
+
+// Define the columns for the player stats table
+const playerStatsColumns = [
+  { key: 'name', label: 'Name' },
+  { key: 'position', label: 'Position' },
+  { key: 'pts', label: 'Points' },
+  { key: 'ast', label: 'Assists' },
+  { key: 'reb', label: 'Rebounds' },
+  { key: 'fg_pct', label: 'Field Goal %' },
+  { key: 'three_pct', label: 'Three Point %' },
+  { key: 'mpg', label: 'Minutes Per Game' },
+];
+
+// Define the columns for the player per minute stats table
+const playerPerMinuteStatsColumns = [
+  { key: 'name', label: 'Name' },
+  { key: 'position', label: 'Position' },
+  { key: 'mpg', label: 'Minutes Per Game' },
+  { key: 'ppm', label: 'Points' },
+  { key: 'apm', label: 'Assists' },
+  { key: 'rpm', label: 'Rebounds' },
+  { key: 'tpm', label: 'Turnovers' },
+  { key: 'fpm', label: 'Fouls' },
+];
 
 export default function DashboardClient() {
   const { user, isLoading } = useUser();
@@ -88,125 +115,18 @@ export default function DashboardClient() {
 
       {loading && <p>Loading player data...</p>}
       {error && <p className="text-red-500">{error}</p>}
+      {loadingPerMinute && <p>Loading player per minute data...</p>}
+      {errorPerMinute && <p className="text-red-500">{errorPerMinute}</p>}
 
-      {!loading && !error && (
+      {!loading && !error && !loadingPerMinute && !errorPerMinute && (
         <>
-          <div className="mb-8">
-            <h3 className="mb-2 text-xl font-semibold">Players Stats</h3>
-            <div className="overflow-x-auto overflow-y-auto max-h-[400px] border border-gray-200 rounded-lg">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="sticky top-0 z-10 bg-gray-50">
-                  <tr>
-                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
-                      Name
-                    </th>
-                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
-                      Position
-                    </th>
-                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
-                      Points
-                    </th>
-                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
-                      Assists
-                    </th>
-                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
-                      Rebounds
-                    </th>
-                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
-                      Field Goal %
-                    </th>
-                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
-                      Three Point %
-                    </th>
-                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
-                      Minutes Per Game
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredPlayers.map((player) => (
-                    <tr key={player.id}>
-                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">
-                        {player.name ?? 'N/A'}
-                      </td>
-                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">
-                        {player.position ?? 'N/A'}
-                      </td>
-                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">
-                        {player.pts ?? 0}
-                      </td>
-                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">
-                        {player.ast ?? 0}
-                      </td>
-                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">
-                        {player.reb ?? 0}
-                      </td>
-                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">
-                        {player.fg_pct ?? 'N/A'}
-                      </td>
-                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">
-                        {player.three_pct ?? 'N/A'}
-                      </td>
-                      <td className="px-4 py-2 text-gray-900 whitespace-nowrap">
-                        {player.mpg ?? 'N/A'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div className="mb-8">
-            <h3 className="mb-2 text-xl font-semibold">Players Stats</h3>
-            <div className="overflow-x-auto overflow-y-auto max-h-[400px] border border-gray-200 rounded-lg">
-              {loadingPerMinute ? (
-                <p>Loading...</p>
-              ) : errorPerMinute ? (
-                <p className="text-red-500">{errorPerMinute}</p>
-              ) : (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="sticky top-0 z-10 bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                        Name
-                      </th>
-                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                        Position
-                      </th>
-                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                        Points
-                      </th>
-                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                        Assists
-                      </th>
-                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                        Rebounds
-                      </th>
-                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                        Turnovers
-                      </th>
-                      <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
-                        Fouls
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {filteredPlayersPerMinute.map((player) => (
-                      <tr key={player.name}>
-                        <td className="px-4 py-2 whitespace-nowrap">{player.name}</td>
-                        <td className="px-4 py-2 whitespace-nowrap">{player.position}</td>
-                        <td className="px-4 py-2 whitespace-nowrap">{player.ppm}</td>
-                        <td className="px-4 py-2 whitespace-nowrap">{player.apm}</td>
-                        <td className="px-4 py-2 whitespace-nowrap">{player.rpm}</td>
-                        <td className="px-4 py-2 whitespace-nowrap">{player.tpm}</td>
-                        <td className="px-4 py-2 whitespace-nowrap">{player.fpm}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
+          <StatsTable data={filteredPlayers} columns={playerStatsColumns} title="Player Stats" />
+
+          <StatsTable
+            data={filteredPlayersPerMinute}
+            columns={playerPerMinuteStatsColumns}
+            title="Player Per Minute Stats"
+          />
 
           <div className="mb-8">
             <h3 className="mb-2 text-xl font-semibold">Average Points Per Game</h3>

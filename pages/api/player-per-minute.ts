@@ -27,6 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return {
       name,
       position,
+      mpg,
       ppm: +(pts / safeMinutes).toFixed(2),
       apm: +(ast / safeMinutes).toFixed(2),
       rpm: +(reb / safeMinutes).toFixed(2),

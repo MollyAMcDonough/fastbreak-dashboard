@@ -1,0 +1,33 @@
+# Players Table Column Descriptions
+
+- **id**: Unique player identifier (auto-generated)
+- **name**: Player's full name
+- **position**: Player's position (e.g., PG, SG, SF, PF, C)
+- **traded_midseason**: Whether the player was traded midseason (true/false)
+- **gp**: Games played
+- **gs**: Games started
+- **mpg**: Minutes per game
+- **pts**: Points per game
+- **org**: Offensive rebounds per game
+- **drg**: Defensive rebounds per game
+- **reb**: Total rebounds per game
+- **ast**: Assists per game
+- **stl**: Steals per game
+- **blk**: Blocks per game
+- **tpg**: Turnovers per game
+- **fpg**: Fouls per game
+- **ast_to**: Assist-to-turnover ratio
+- **fgm**: Field goals made per game
+- **fga**: Field goals attempted per game
+- **fg_pct**: Field goal percentage
+- **three_pm**: Three-point field goals made per game
+- **three_pa**: Three-point field goals attempted per game
+- **three_pct**: Three-point field goal percentage
+- **ftm**: Free throws made per game
+- **fta**: Free throws attempted per game
+- **ft_pct**: Free throw percentage
+- **two_pm**: Two-point field goals made per game
+- **two_pa**: Two-point field goals attempted per game
+- **two_pct**: Two-point field goal percentage
+- **sc_eff**: Scoring efficiency
+- **sh_eff**: Shooting efficiency

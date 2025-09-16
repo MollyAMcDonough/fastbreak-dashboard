@@ -62,32 +62,35 @@ export default function DashboardClient() {
         <>
           <div className="mb-8">
             <h3 className="mb-2 text-xl font-semibold">Players Table</h3>
-            <div className="overflow-x-auto border border-gray-200 rounded-lg">
+            <div
+              className="overflow-x-auto border border-gray-200 rounded-lg"
+              style={{ maxHeight: 400, overflowY: 'auto' }}
+            >
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="sticky top-0 z-10 bg-gray-50">
                   <tr>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
                       Name
                     </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
                       Position
                     </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
                       Points
                     </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
                       Assists
                     </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
                       Rebounds
                     </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
                       Field Goal %
                     </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
                       Three Point %
                     </th>
-                    <th className="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase">
+                    <th className="sticky top-0 z-20 px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase bg-gray-50">
                       Minutes Per Game
                     </th>
                   </tr>
@@ -127,8 +130,11 @@ export default function DashboardClient() {
           </div>
 
           <div className="mb-8">
-            <h3 className="mb-2 text-xl font-semibold">Points by Player (Bar Chart)</h3>
-            <div className="p-4 bg-white border border-gray-200 rounded-lg">
+            <h3 className="mb-2 text-xl font-semibold">Average Points Per Game</h3>
+            <div
+              className="p-4 bg-white border border-gray-200 rounded-lg"
+              style={{ maxHeight: 400, overflowY: 'auto' }}
+            >
               {filteredPlayers.length === 0 ? (
                 <p className="text-gray-500">No player data available for chart.</p>
               ) : (
@@ -138,7 +144,7 @@ export default function DashboardClient() {
                     layout="vertical"
                     margin={{ top: 20, right: 30, left: 90, bottom: 5 }}
                   >
-                    <XAxis type="number" />
+                    <XAxis type="number" axisLine={true} tickLine={true} />
                     <YAxis
                       dataKey="name"
                       type="category"
@@ -153,6 +159,8 @@ export default function DashboardClient() {
                           {payload.value}
                         </text>
                       )}
+                      axisLine={true}
+                      tickLine={true}
                     />
                     <Tooltip />
                     <Bar dataKey="pts" fill="#3b82f6" />

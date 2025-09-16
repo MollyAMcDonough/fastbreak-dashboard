@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useUser } from '@auth0/nextjs-auth0';
 import { useRouter } from 'next/navigation';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, Legend, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 type Player = {
   id: string;
@@ -164,6 +164,49 @@ export default function DashboardClient() {
                     />
                     <Tooltip />
                     <Bar dataKey="pts" fill="#3b82f6" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="mb-2 text-xl font-semibold">Field Goal and Three Point Percentages</h3>
+            <div
+              className="p-4 bg-white border border-gray-200 rounded-lg"
+              style={{ maxHeight: 400, overflowY: 'auto' }}
+            >
+              {filteredPlayers.length === 0 ? (
+                <p className="text-gray-500">No player data available for chart.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={filteredPlayers.length * 40}>
+                  <BarChart
+                    data={filteredPlayers}
+                    layout="vertical"
+                    margin={{ top: 20, right: 30, left: 90, bottom: 5 }}
+                  >
+                    <XAxis type="number" axisLine={true} tickLine={true} domain={[0, 100]} />
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      tick={({ x, y, payload }) => (
+                        <text
+                          x={x}
+                          y={y}
+                          dy={4}
+                          textAnchor="end"
+                          style={{ whiteSpace: 'nowrap', fontSize: 14 }}
+                        >
+                          {payload.value}
+                        </text>
+                      )}
+                      axisLine={true}
+                      tickLine={true}
+                    />
+                    <Bar dataKey="fg_pct" fill="#3b82f6" name="FG%" />
+                    <Bar dataKey="three_pct" fill="#f59e42" name="3P%" />
+                    <Tooltip />
+                    <Legend verticalAlign="top" />
                   </BarChart>
                 </ResponsiveContainer>
               )}

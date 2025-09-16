@@ -72,7 +72,7 @@ export default function DashboardClient() {
   // Fetch supabase data via the protected player Nextjs API route
   useEffect(() => {
     if (user) {
-      fetch('/api/test-supabase')
+      fetch('/api/player')
         .then((res) => res.json())
         .then((data) => {
           setPlayers(data);

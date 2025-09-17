@@ -9,6 +9,7 @@ Welcome to the FastBreak Dashboard! This secure web application showcases player
 - **Visualizations Implemented:**
   - Player Stats Table
   - Per-Minute Stats Table
+  - Top 5 by Dropdown Selection Table
   - Points Per Game Bar Chart
   - Grouped Bar Chart: FG% vs 3P% by Player
 - **API Endpoints:** Next.js API routes for data transformation (e.g., per-minute stats)

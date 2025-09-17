@@ -29,6 +29,9 @@ type PlayerPerMinute = {
   fpm: number;
 };
 
+// statKey should be restricted to the allowed stat keys
+type StatKey = 'pts' | 'ast' | 'reb' | 'fg_pct' | 'three_pct';
+
 // Define the columns for the player stats table
 const playerStatsColumns = [
   { key: 'name', label: 'Name' },
@@ -53,6 +56,15 @@ const playerPerMinuteStatsColumns = [
   { key: 'fpm', label: 'Fouls' },
 ];
 
+// statOptions for top 5 dropdown
+const statOptions = [
+  { key: 'pts', label: 'Points' },
+  { key: 'ast', label: 'Assists' },
+  { key: 'reb', label: 'Rebounds' },
+  { key: 'fg_pct', label: 'Field Goal %' },
+  { key: 'three_pct', label: 'Three Point %' },
+];
+
 export default function DashboardClient() {
   const { user, isLoading } = useUser();
   const router = useRouter();
@@ -62,6 +74,7 @@ export default function DashboardClient() {
   const [playersPerMinute, setPlayersPerMinute] = useState<PlayerPerMinute[]>([]);
   const [loadingPerMinute, setLoadingPerMinute] = useState(true);
   const [errorPerMinute, setErrorPerMinute] = useState<string | null>(null);
+  const [selectedStat, setSelectedStat] = useState(statOptions[0].key);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -104,6 +117,23 @@ export default function DashboardClient() {
     (p) => p.name && p.name.toLowerCase() !== 'total'
   );
 
+  const getTopFive = (players: Player[], statKey: StatKey) => {
+    return [...players]
+      .filter((p) => typeof p[statKey] === 'number')
+      .sort((a, b) => b[statKey] - a[statKey])
+      .slice(0, 5);
+  };
+
+  const topFivePlayers = getTopFive(filteredPlayers, selectedStat as StatKey);
+
+  const columns = [
+    { key: 'name', label: 'Name' },
+    {
+      key: selectedStat,
+      label: statOptions.find((o) => o.key === selectedStat)?.label || selectedStat,
+    },
+  ];
+
   if (isLoading) {
     return <p>Loading...</p>;
   }
@@ -126,6 +156,30 @@ export default function DashboardClient() {
             data={filteredPlayersPerMinute}
             columns={playerPerMinuteStatsColumns}
             title="Player Per Minute Stats"
+          />
+
+          <div className="mb-4">
+            <label htmlFor="stat-select" className="mr-2 text-xl font-semibold">
+              Top 5 by:
+            </label>
+            <select
+              id="stat-select"
+              value={selectedStat}
+              onChange={(e) => setSelectedStat(e.target.value)}
+              className="px-2 py-1 text-gray-500 border rounded"
+            >
+              {statOptions.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <StatsTable
+            data={topFivePlayers}
+            columns={columns}
+            title={`Top 5 Players by ${statOptions.find((o) => o.key === selectedStat)?.label}`}
           />
 
           <div className="mb-8">

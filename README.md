@@ -5,62 +5,18 @@ Welcome to the FastBreak Dashboard! This secure web application showcases player
 ## Features
 
 - **Auth0 Authentication:** Login/logout and protected dashboard routes
-- **Player Data:** Points, assists, rebounds, field goal percentage, minutes played, turnovers, fouls, etc.
-- **Visualizations:**
-  - Player Leaderboard (top 5 in each stat)
-  - Shooting Efficiency (FG% vs 3P% bar chart)
-  - Performance Radar Chart (multi-axis for selected player)
-  - Points Distribution (bar chart)
+- **Player Data:** Points, assists, rebounds, field goal percentage, minutes played, turnovers, fouls
+- **Visualizations Implemented:**
+  - Player Stats Table
+  - Per-Minute Stats Table
+  - Points Per Game Bar Chart
+  - Grouped Bar Chart: FG% vs 3P% by Player
 - **API Endpoints:** Next.js API routes for data transformation (e.g., per-minute stats)
 - **Tech Stack:** Next.js App Router, Tailwind CSS, Auth0, TypeScript, Supabase, Recharts
 
-## Tech Stack
-
-- **Next.js** (App Router, TypeScript)
-- **Tailwind CSS** for styling
-- **Auth0** for authentication and route protection
-- **Supabase** for database and API integration
-- **Recharts** for data visualizations
-
 ## Data Source
 
-Player statistics are sourced from ESPN home game data for the Charlotte Hornets 2024-2025 NBA season. Data was manually collected and saved to Supabase using the table structure shown in `supabase/migrations/01_create_players_table.sql`:
-
-```sql
-CREATE TABLE players (
-	id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	name TEXT NOT NULL,
-	position TEXT,
-	traded_midseason BOOLEAN DEFAULT FALSE,
-	gp INT,
-	gs INT,
-	min FLOAT,
-	pts FLOAT,
-	or FLOAT,
-	dr FLOAT,
-	reb FLOAT,
-	ast FLOAT,
-	stl FLOAT,
-	blk FLOAT,
-	to FLOAT,
-	pf FLOAT,
-	ast_to FLOAT,
-	fgm FLOAT,
-	fga FLOAT,
-	fg_pct FLOAT,
-	three_pm FLOAT,
-	three_pa FLOAT,
-	three_pct FLOAT,
-	ftm FLOAT,
-	fta FLOAT,
-	ft_pct FLOAT,
-	two_pm FLOAT,
-	two_pa FLOAT,
-	two_pct FLOAT,
-	sc_eff FLOAT,
-	sh_eff FLOAT
-);
-```
+Player statistics are sourced from ESPN home game data for the Charlotte Hornets 2024-2025 NBA season. Data was copied and uploaded as csv to Supabase into the table structure shown in `supabase/migrations/01_create_players_table.sql` (see file for details).
 
 Supabase was chosen for its ease of integration and because FastBreak prefers Supabase for take-home projects. The Ball Don't Lie API was considered, but most data is paywalled and rate-limited.
 
